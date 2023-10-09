@@ -1,0 +1,16 @@
+.login-card {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+.login-card {
+    background-color: #f8f9fa; /* Replace with your desired background color */
+  }
+  .logs {
+    background-color: #f8f9fa; /* Replace with your desired background color */
+  }
+  

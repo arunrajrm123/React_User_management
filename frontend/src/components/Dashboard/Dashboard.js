@@ -1,0 +1,203 @@
+import React, { useContext, useEffect, useState } from "react";
+import Authcontext from "../../context/Logincontext";
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../axios/axios";
+import axios from "axios";
+import "./Dashboard.css";
+import { storage } from "../../firebase/firebaseconfig";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
+const Dashboard = () => {
+  const { userDecode, accessToken, setAccessToken, setUserDecode } =
+    useContext(Authcontext);
+
+  const [userdetails, setUserDetails] = useState("");
+  const [toEdit, setToEdit] = useState(false);
+  const [nameChange, setNameChange] = useState("");
+  const [image, setImage] = useState("");
+  const [fireimage, setFireimage] = useState("");
+  
+  const [userImage, setUserImage] = useState("");
+  const [changeImage,setChangeImage]=useState(false)
+
+  const uploadImage = () => {
+    if (fireimage != "") {
+      const imageref = ref(storage, `images/${fireimage.name + v4()}`);
+      uploadBytes(imageref, fireimage)
+        .then((res) => {
+          console.log(res);
+          getDownloadURL(imageref)
+            .then((url) => {
+              console.log(url);
+              
+              // const imageurl=url
+              const parsit = JSON.parse(localStorage.getItem("details"));
+              const userid = parsit.id;
+              console.log(userid);
+              const datas = {
+                imageurl: url,
+                userid: userid,
+              };
+              axiosInstance
+                .post("uploadimage/", datas)
+                .then((res) => {
+                  console.log(res.data);
+                  localStorage.setItem(
+                    "details",
+                    JSON.stringify(res.data.userdatas)
+                  );
+                  setUserDetails(res.data.userdatas);
+                })
+                .catch((err) => alert(" errro in calling the django view"));
+            })
+            .catch((err) => alert("ERROR ON DOWNLOADING URL"));
+        })
+        .catch((err) => alert(err));
+    }
+  };
+
+  const handleEdit = () => {
+    axiosInstance
+      .post(`edituser/${userdetails.id}`, { name: nameChange })
+      .then((res) => {
+        console.log(res.data);
+        localStorage.setItem("details", JSON.stringify(res.data));
+        setUserDetails(res.data);
+      })
+      .catch((err) => alert(err));
+  };
+
+  useEffect(() => {
+    const storedDetails = localStorage.getItem("details");
+    if (storedDetails) {
+      const parsedData = JSON.parse(storedDetails);
+      setUserDetails(parsedData);
+      setImage(`http://127.0.0.1:8000${parsedData.image}`);
+      console.log(parsedData);
+    }
+  }, []);
+
+  const navigate = useNavigate();
+  console.log(accessToken);
+
+  const logout = () => {
+    setAccessToken("");
+    setUserDecode("");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("details");
+    navigate("/loginpage");
+  };
+
+  // const updateToken=()=>{
+  //   console.log(accessToken.refresh +" BEFORE");
+  //   axios(
+  //     {
+  //       method:"post",
+  //       url: "http://127.0.0.1:8000/api/token/refresh/",
+  //       data: {
+  //       refresh: accessToken.refresh,
+
+  //     },
+  //     }
+  //   ).then((res)=>{
+  //       console.log(res+"  ACCESS");
+  //       console.log(res+"  REFRESH");
+
+  //   }).catch((err)=>{
+  //     alert(err)
+  //   })
+
+  // }
+
+  return (
+    <div>
+      {userdetails ? <h1>Welcome {userdetails.name} </h1> : <div></div>}
+
+      {console.log(accessToken)}
+      <button className="btn btn-danger btnlogout" onClick={logout}>
+        Log Out
+      </button>
+
+      <div>
+        {/* {JSON.parse(localStorage.getItem("details")).name} */}
+        {/* <img src={image} alt="sd" /> */}
+
+        <div className="row">
+          {/* <div className="col-md-6">
+            <img
+              src="https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGhvdGVsfGVufDB8fDB8fHww&auto=format&fit=crop&w=600&q=60"
+              alt="Hotel Lobby"
+              className="img-fluid rounded"
+            />
+          </div> */}
+
+          <div className="col-md-6">
+            
+            <div>
+              {userdetails && <img className="profileimage" src={userdetails.image} alt="loading" />}
+            </div>
+            <div><button className="btn-btn" onClick={()=>setChangeImage((prev)=>!(prev))}>Change Image</button></div>
+            
+         
+            
+              {
+                changeImage && <div>
+                <input
+                  type="file"
+                  className="form-control"
+                  onChange={(e) => setFireimage(e.target.files[0])}
+                />
+                <button className="btn btn-success" onClick={uploadImage}>Upload Image</button>
+    
+                </div>
+                
+              }
+                 {/* <button
+              className="btn btn-warning btnedit"
+              onClick={() => {
+                setToEdit((prev) => !prev);
+              }}
+            >
+              Edit Name
+            </button> */}
+           
+
+            
+
+            {toEdit && (
+              <div className="editcard card p-3">
+                <div className="form-group">
+                  <label htmlFor="username">Name:</label>
+                  <input
+                    type="text"
+                    className="form-control mt-4"
+                    id="name"
+                    name="name"
+                    required
+                    value={nameChange}
+                    onChange={(e) => setNameChange(e.target.value)}
+                  />
+                </div>
+                <button className="btn btn-success mt-4" onClick={handleEdit}>
+                  SUBMIT
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* <button onClick={()=>{
+        setUserDetails(JSON.parse(localStorage.getItem("details")))
+        
+
+      }}>CLICK</button> */}
+
+      {console.log(userdetails, "##################")}
+
+      {console.log(image)}
+    </div>
+  );
+};
+
+export default Dashboard;

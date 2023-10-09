@@ -1,0 +1,31 @@
+.editcard{
+    width: 30vw;
+    margin-left: 10vw;
+    margin-top: 7vh;
+
+}
+.btnlogout{
+    margin-left: 90vw;
+  
+}
+    /* .btnedit{
+        margin-left: 50vw;
+        padding-right: 2vw;
+        
+
+    } */
+.profileimage{
+    width:10vw;
+   
+    margin-right: 30vw;
+}
+.changebtn{
+    margin-right: 30vw;
+    margin-top: 2vh;
+}
+.btnedit{
+    margin-right: 30vw;
+    margin-top: 2vh;
+    padding-left: 1.5vw;
+    padding-right: 1.5vw;
+}

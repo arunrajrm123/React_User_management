@@ -1,0 +1,13 @@
+.link-card {
+    background-color: #5ae01c;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 5px;
+    display: inline-block;
+  }
+  
+  .link-card a {
+    text-decoration: none;
+    color: #aa1717;
+  }
+  
